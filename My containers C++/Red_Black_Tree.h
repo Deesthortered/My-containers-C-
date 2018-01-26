@@ -103,6 +103,7 @@ namespace spaceRed_Black_Tree
 
 		inline void insertBalance(TreeNode *&current)
 		{
+			if (!current->red || !current->parent->red) return;
 			if (!current->parent->red) return;
 			TreeNode *grandparent = current->parent->parent;
 			TreeNode *uncle = (grandparent->left == current->parent ? grandparent->right : grandparent->left);
