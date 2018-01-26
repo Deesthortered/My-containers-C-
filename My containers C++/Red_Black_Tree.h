@@ -21,9 +21,12 @@ namespace spaceRed_Black_Tree
 	public:
 		Red_Black_Tree()
 		{
-			main_root = nullptr;
 			nil = new TreeNode();
 			nil->red = false;
+			nil->left = nil;
+			nil->right = nil;
+			nil->parent = nil;
+			this->main_root = nil;
 		}
 		~Red_Black_Tree()
 		{
@@ -33,7 +36,7 @@ namespace spaceRed_Black_Tree
 
 		bool Insert(T data)
 		{
-			if (!this->main_root)
+			if (this->main_root == nil)
 			{
 				this->main_root = new TreeNode(data, nil, nil);
 				this->main_root->red = false;
@@ -85,10 +88,43 @@ namespace spaceRed_Black_Tree
 				while (sub->left != nil) sub = sub->left;
 			}
 			current->data = sub->data;
-			deleteBalance(sub);
-			if (sub->parent->left == sub) sub->parent->left = nil;
-			else sub->parent->right = nil;
-			delete sub;
+			if (sub == this->main_root)
+			{
+				delete this->main_root;
+				this->main_root = nil;
+				return true;
+			}
+			if (sub->left == nil && sub->right == nil)
+			{
+				if (sub->red)
+				{
+					if (sub->parent->left == sub) sub->parent->left = nil;
+					else sub->parent->right = nil;
+					delete sub;
+				}
+				else
+				{
+					deleteBalance(sub);
+					if (sub->parent->left == sub) sub->parent->left = nil;
+					else sub->parent->right = nil;
+					delete sub;
+				}
+			}
+			else
+			{
+				if (sub->left != nil)
+				{
+					sub->data = sub->left->data;
+					delete sub->left;
+					sub->left = nil;
+				}
+				else
+				{
+					sub->data = sub->right->data;
+					delete sub->right;
+					sub->right = nil;
+				}
+			}
 			return true;
 		}
 
@@ -104,7 +140,6 @@ namespace spaceRed_Black_Tree
 		inline void insertBalance(TreeNode *&current)
 		{
 			if (!current->red || !current->parent->red) return;
-			if (!current->parent->red) return;
 			TreeNode *grandparent = current->parent->parent;
 			TreeNode *uncle = (grandparent->left == current->parent ? grandparent->right : grandparent->left);
 			if (uncle->red)
@@ -130,75 +165,104 @@ namespace spaceRed_Black_Tree
 			}
 			this->main_root->red = false;
 		}
-		inline void deleteBalance(TreeNode *&current)
+		inline void deleteBalance(TreeNode *current)
 		{
-			if (current->red)
+			while (true)
 			{
-				if (current->parent->left == current) current->parent->left = nil;
-				else current->parent->right = nil;
-				return;
-			}
-			TreeNode *p = (current->left->red ? current->left : current->right);
-			if (p->red)
-			{
-				current->data = p->data;
-				if (current->left == p) current->left = nil;
-				else current->right = nil;
-				current = p;
-				return;
-			}
-			if (current == this->main_root)
-			{
-				delete this->main_root;
-				this->main_root = nullptr;
-				return;
-			}
-			TreeNode *node = current;
-			while (!node->red && node != this->main_root)
-			{
-				TreeNode *bro = (node->parent->left == node ? node->parent->right : node->parent->left);
-				TreeNode *parent = bro->parent;
-				if (bro->red)
+				TreeNode *parent = current->parent;
+				TreeNode *bro = (parent->left == current ? parent->right : parent->left);
+				if (parent->red)
 				{
-					bro->red = false;
-					node->parent->red = true;
-					if (node->parent->left == bro) R_rotate(parent);
-					else L_rotate(parent);
+					if (bro->left->red || bro->right->red) // 1.1 ok
+					{
+						parent->red = false;
+						if (parent->left == current)
+						{
+							if (bro->left->red) RL_rotate(parent);
+							else { bro->red = true; bro->right->red = false; L_rotate(parent); }
+						}
+						else
+						{
+							if (bro->left->red) { bro->red = true; bro->left->red = false; R_rotate(parent); }
+							else LR_rotate(parent);
+						}
+						return;
+					}
+					else // 1.2 ok
+					{
+						bro->red = true;
+						parent->red = false;
+						return;
+					}
 				}
 				else
 				{
-					if (bro->right->red)
+					if (bro->red)
 					{
-						bro->red = node->parent->red;
-						bro->right->red = false;
-						bro->parent->red = false;
-						if (bro->parent->left == bro) R_rotate(parent);
-						else L_rotate(parent);
-						return;
+						if (bro->left->left->red || bro->left->right->red || bro->right->left->red || bro->right->right->red) // 2.1.1
+						{
+							if (bro->parent->left == bro)
+							{
+								if (bro->left->left->red || bro->left->right->red) { bro->red = false; bro->right->red = true; R_rotate(parent); }
+								else if (bro->right->left->red) { bro->right->left->red = false; LR_rotate(parent); }
+								else if (bro->right->right->red) { bro->right->right->red = false; L_rotate(bro->right); LR_rotate(parent); }
+							}
+							else
+							{
+								if (bro->left->left->red) { bro->left->left->red = false; R_rotate(bro->left); RL_rotate(parent); }
+								else if (bro->left->right->red) { bro->left->right->red = false; RL_rotate(parent); }
+								else if (bro->right->left->red || bro->right->right->red) { bro->red = false; bro->left->red = true; L_rotate(parent); }
+							}
+							return;
+						}
+						else // 2.1.2 ok
+						{
+							bro->red = false;
+							if (bro == bro->parent->left)
+							{
+								bro->right->red = true;
+								R_rotate(parent);
+							}
+							else
+							{
+								bro->left->red = true;
+								L_rotate(parent);
+							}
+							return;
+						}
 					}
-					else if (bro->left->red)
+					else
 					{
-						bro->red = true;
-						bro->left->red = false;
-						if (bro->parent->left == bro) L_rotate(parent);
-						else R_rotate(parent);
-					}
-					else if (bro != nil)
-					{
-						bro->red = true;
-						node->parent->red = false;
+						if (bro->left->red || bro->right->red) // 2.2.1
+						{
+							if (parent->left == current)
+							{
+								if (bro->left->red) { bro->left->red = false; RL_rotate(parent); }
+								else { bro->right->red = false; L_rotate(parent); }
+							}
+							else
+							{
+								if (bro->left->red) { bro->left->red = false; R_rotate(parent);}
+								else { bro->right->red = false; LR_rotate(parent); }
+							}
+							return;
+						}
+						else // 2.2.2 ok
+						{
+							bro->red = true;
+							current = current->parent;
+						}
 					}
 				}
-				node = node->parent;
 			}
 		}
-		inline void L_rotate(TreeNode *&p1)
+		inline void L_rotate(TreeNode *p1)
 		{
 			TreeNode *p2 = p1->right;
 			p1->right = p2->left;
-			if (p2->left != nil && p2->left) p2->left->parent = p1;
+			if (p2->left != nil) p2->left->parent = p1;
 			p2->parent = p1->parent;
-			if (p1->parent != nil && p1->parent)
+			if (p1->parent != nil)
 			{
 				if (p1->parent->left == p1) p1->parent->left = p2;
 				else p1->parent->right = p2;
@@ -207,13 +271,13 @@ namespace spaceRed_Black_Tree
 			p2->left = p1;
 			if (p1 == this->main_root) this->main_root = p2;
 		}
-		inline void R_rotate(TreeNode *&p1)
+		inline void R_rotate(TreeNode *p1)
 		{
 			TreeNode *p2 = p1->left;
 			p1->left = p2->right;
-			if (p2->right && p2->right != nil) p2->right->parent = p1;
+			if (p2->right != nil) p2->right->parent = p1;
 			p2->parent = p1->parent;
-			if (p1->parent != nil && p1->parent)
+			if (p1->parent != nil)
 			{
 				if (p1->parent->left == p1) p1->parent->left = p2;
 				else p1->parent->right = p2;
@@ -222,42 +286,42 @@ namespace spaceRed_Black_Tree
 			p2->right = p1;
 			if (p1 == this->main_root) this->main_root = p2;
 		}
-		inline void LR_rotate(TreeNode *&p1)
+		inline void LR_rotate(TreeNode *p1)
 		{
 			TreeNode *p2 = p1->left;
 			TreeNode *p3 = p2->right;
 			p2->right = p3->left;
-			if (p3->left && p3->left != nil) p3->left->parent = p2;
+			if (p3->left != nil) p3->left->parent = p2;
 			p3->left = p2;
 			p3->parent = p1->parent;
 			p2->parent = p3;
-			if (p1->parent && p1->parent != nil)
+			if (p1->parent != nil)
 			{
 				if (p1->parent->left == p1) p1->parent->left = p3;
 				else p1->parent->right = p3;
 			}
 			p1->left = p3->right;
-			if (p3->right && p3->right != nil) p3->right->parent = p1;
+			if (p3->right != nil) p3->right->parent = p1;
 			p3->right = p1;
 			p1->parent = p3;
 			if (this->main_root == p1) this->main_root = p3;
 		}
-		inline void RL_rotate(TreeNode *&p1)
+		inline void RL_rotate(TreeNode *p1)
 		{
 			TreeNode *p2 = p1->right;
 			TreeNode *p3 = p2->left;
 			p2->left = p3->right;
-			if (p3->right && p3->right != nil) p3->right->parent = p2;
+			if (p3->right != nil) p3->right->parent = p2;
 			p3->right = p2;
 			p3->parent = p1->parent;
 			p2->parent = p3;
-			if (p1->parent && p1->parent != nil)
+			if (p1->parent != nil)
 			{
 				if (p1->parent->left == p1) p1->parent->left = p3;
 				else p1->parent->right = p3;
 			}
 			p1->right = p3->left;
-			if (p3->left && p3->left != nil) p3->left->parent = p1;
+			if (p3->left != nil) p3->left->parent = p1;
 			p3->left = p1;
 			p1->parent = p3;
 			if (this->main_root == p1) this->main_root = p3;

@@ -10,6 +10,9 @@ int main()
 		tree.Insert(i);
 	tree.Insert(30);
 	tree.Insert(29);
+
+	tree.Delete(4);
+
 	system("pause");
 	return 0;
 }
