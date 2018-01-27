@@ -131,13 +131,13 @@ namespace spaceRed_Black_Tree
 	private:
 		void clear(TreeNode *node)
 		{
-			if (node == nil || !node) return;
+			if (node == nil) return;
 			clear(node->left);
 			clear(node->right);
 			delete node;
 		}
 
-		inline void insertBalance(TreeNode *&current)
+		inline void insertBalance(TreeNode *current)
 		{
 			if (!current->red || !current->parent->red) return;
 			TreeNode *grandparent = current->parent->parent;
@@ -150,24 +150,23 @@ namespace spaceRed_Black_Tree
 			}
 			else
 			{
-				current->parent->red = false;
 				grandparent->red = true;
 				if (current->parent->left == current)
 				{
-					if (grandparent->left == uncle) LR_rotate(grandparent);
-					else R_rotate(grandparent);
+					if (grandparent->left == uncle) { current->red = false; RL_rotate(grandparent); }
+					else { current->parent->red = false; R_rotate(grandparent); }
 				}
 				else
 				{
-					if (grandparent->left == uncle) L_rotate(grandparent);
-					else RL_rotate(grandparent);;
+					if (grandparent->left == uncle) { current->parent->red = false; L_rotate(grandparent); }
+					else { current->red = false; LR_rotate(grandparent); }
 				}
 			}
 			this->main_root->red = false;
 		}
 		inline void deleteBalance(TreeNode *current)
 		{
-			while (true)
+			while (current != this->main_root)
 			{
 				TreeNode *parent = current->parent;
 				TreeNode *bro = (parent->left == current ? parent->right : parent->left);
