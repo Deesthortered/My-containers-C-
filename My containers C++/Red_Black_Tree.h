@@ -28,10 +28,42 @@ namespace spaceRed_Black_Tree
 			nil->parent = nil;
 			this->main_root = nil;
 		}
+		Red_Black_Tree(const Red_Black_Tree &obj)
+		{
+			nil = new TreeNode();
+			nil->red = false;
+			nil->left = nil;
+			nil->right = nil;
+			nil->parent = nil;
+			if (obj.main_root == obj.nil)
+				this->main_root = this->nil;
+			else
+			{
+				this->main_root = new TreeNode;
+				this->main_root->parent = this->nil;
+				copy(this->main_root, obj.main_root, obj.nil);
+			}
+		}
 		~Red_Black_Tree()
 		{
 			clear(this->main_root);
 			delete nil;
+			this->main_root = nullptr;
+			this->nil = nullptr;
+		}
+
+		Red_Black_Tree& operator=(const Red_Black_Tree &obj)
+		{
+			clear(this->main_root);
+			if (obj.main_root == obj.nil)
+				this->main_root = this->nil;
+			else
+			{
+				this->main_root = new TreeNode;
+				this->main_root->parent = this->nil;
+				copy(this->main_root, obj.main_root, obj.nil);
+			}
+			return *this;
 		}
 
 		bool Insert(T data)
@@ -136,6 +168,24 @@ namespace spaceRed_Black_Tree
 			clear(node->right);
 			delete node;
 		}
+		void copy(TreeNode *into, TreeNode *from, TreeNode *nil_from)
+		{
+			if (from == nil_from)
+			{
+				*into = *nil;
+				return;
+			}
+			into->data = from->data;
+			into->red = from->red;
+
+			into->left = new TreeNode;
+			into->left->parent = into;
+			into->right = new TreeNode;
+			into->right->parent = into;
+
+			copy(into->left, from->left, nil_from);
+			copy(into->right, from->right, nil_from);
+		}
 
 		inline void insertBalance(TreeNode *current)
 		{
@@ -172,7 +222,7 @@ namespace spaceRed_Black_Tree
 				TreeNode *bro = (parent->left == current ? parent->right : parent->left);
 				if (parent->red)
 				{
-					if (bro->left->red || bro->right->red) // 1.1 ok
+					if (bro->left->red || bro->right->red) // 1.1
 					{
 						parent->red = false;
 						if (parent->left == current)
@@ -187,7 +237,7 @@ namespace spaceRed_Black_Tree
 						}
 						return;
 					}
-					else // 1.2 ok
+					else // 1.2
 					{
 						bro->red = true;
 						parent->red = false;
@@ -214,7 +264,7 @@ namespace spaceRed_Black_Tree
 							}
 							return;
 						}
-						else // 2.1.2 ok
+						else // 2.1.2
 						{
 							bro->red = false;
 							if (bro == bro->parent->left)
@@ -246,7 +296,7 @@ namespace spaceRed_Black_Tree
 							}
 							return;
 						}
-						else // 2.2.2 ok
+						else // 2.2.2
 						{
 							bro->red = true;
 							current = current->parent;
