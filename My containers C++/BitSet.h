@@ -231,6 +231,7 @@ namespace spaceBitSet
 			size_t i1 = a.bit_size >> 3;
 			for (register size_t i = 0; i < i1; i++)
 				if (a.arr[i] < b.arr[i]) return true;
+				else if (a.arr[i] > b.arr[i]) return false;
 			size_t i2 = a.bit_size - ((a.bit_size >> 3) << 3);
 			if (!i2) return true;
 			char c = (-128 >> (i2 - 1));
@@ -243,6 +244,7 @@ namespace spaceBitSet
 			size_t i1 = a.bit_size >> 3;
 			for (register size_t i = 0; i < i1; i++)
 				if (a.arr[i] > b.arr[i]) return true;
+				else if (a.arr[i] < b.arr[i]) return false;
 			size_t i2 = a.bit_size - ((a.bit_size >> 3) << 3);
 			if (!i2) return true;
 			char c = (-128 >> (i2 - 1));
