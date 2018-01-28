@@ -23,24 +23,14 @@ namespace spaceAVL_Tree
 		}
 		~AVL_Tree()
 		{
-			this->clear(this->main_root);
-			this->main_root = nullptr;
-		}
-
-		bool Insert(T data)
-		{
-			return insert(data, this->main_root);
-		}
-		void DeleteNode(T data)
-		{
-			deleteNode(data, this->main_root);
+			Clear();
 		}
 
 		bool IsEmpty()
 		{
 			return (this->main_root ? false : true);
 		}
-		T FindVal(T data)
+		T Find(T data)
 		{
 			TreeNode *p = this->main_root;
 			while (p && p->data != data)
@@ -51,20 +41,22 @@ namespace spaceAVL_Tree
 			if (!p) return T();
 			return p->data;
 		}
-		void ReplaceVal(T old_val, T new_val)
+		bool Insert(T data)
 		{
-			TreeNode *p = this->main_root;
-			while (p && p->data != old_val)
-			{
-				if (p->data < old_val) p = p->right;
-				else if (p->data > old_val) p = p->left;
-			}
-			if (!p) return;
-			p->data = new_val;
+			return insert(data, this->main_root);
+		}
+		bool Delete(T data)
+		{
+			return deleteNode(data, this->main_root);
+		}
+		void Clear()
+		{
+			this->clear(this->main_root);
+			this->main_root = nullptr;
 		}
 
 	private:
-		bool insert(T _data, TreeNode *&root)
+		bool insert(T _data, TreeNode *&root) 
 		{
 			if (!root)
 			{
@@ -82,7 +74,7 @@ namespace spaceAVL_Tree
 				if (root->left != nullptr) k = insert(_data, root->left);
 				else root->left = new TreeNode(_data);
 			}
-			else if (_data == root->data) { ++(root->data); return true; }
+			else if (_data == root->data) { return true; }
 
 			root->height = 1 + max(Height(root->left), Height(root->right));
 			int balance = Balance(root);
@@ -93,11 +85,12 @@ namespace spaceAVL_Tree
 			if (balance < -1 && Balance(root->right) >  0) { RL_rotate(root); return k; }
 			return k;
 		}
-		void deleteNode(T _data, TreeNode *&root)
+		bool deleteNode(T _data, TreeNode *&root)
 		{
-			if (!root) return;
-			if (_data < root->data) deleteNode(_data, root->left);
-			else if (_data > root->data) deleteNode(_data, root->right);
+			if (!root) return false;
+			bool res = false;
+			if (_data < root->data) res = deleteNode(_data, root->left);
+			else if (_data > root->data) res = deleteNode(_data, root->right);
 			else
 			{
 				if ((root->left == nullptr) || (root->right == nullptr))
@@ -118,16 +111,17 @@ namespace spaceAVL_Tree
 					root->data = temp->data;
 					deleteNode(temp->data, root->right);
 				}
+				res = true;
 			}
 			if (root == nullptr) return;
 
 			root->height = 1 + max(Height(root->left), Height(root->right));
 			int balance = Balance(root);
 
-			if (balance >  1 && Balance(root->left) >= 0) { R_rotate(root); return; }
-			if (balance >  1 && Balance(root->left)  <  0) { LR_rotate(root); return; }
-			if (balance < -1 && Balance(root->right) <= 0) { L_rotate(root); return; }
-			if (balance < -1 && Balance(root->right) >  0) { RL_rotate(root); return; }
+			if (balance >  1 && Balance(root->left) >= 0) { R_rotate(root); return res; }
+			if (balance >  1 && Balance(root->left)  <  0) { LR_rotate(root); return res; }
+			if (balance < -1 && Balance(root->right) <= 0) { L_rotate(root); return res; }
+			if (balance < -1 && Balance(root->right) >  0) { RL_rotate(root); return res; }
 		}
 		void clear(TreeNode *root)
 		{
