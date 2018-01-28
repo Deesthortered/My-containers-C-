@@ -20,10 +20,21 @@ namespace spaceBinarySearchTree
 		{
 			this->root = nullptr;
 		}
+		BinarySearchTree(BinarySearchTree &obj)
+		{
+			copy(this->root, obj.root);
+		}
 		~BinarySearchTree()
 		{
 			clear(this->root);
 			this->root = nullptr;
+		}
+
+		BinarySearchTree& operator=(BinarySearchTree &obj)
+		{
+			Clear();
+			copy(this->root, obj.root);
+			return *this;
 		}
 
 		bool IsEmpty()
@@ -109,6 +120,13 @@ namespace spaceBinarySearchTree
 			clear(node->left);
 			clear(node->right);
 			delete node;
+		}
+		void copy(TreeNode *&into, TreeNode *&from)
+		{
+			if (!from) return;
+			into = new TreeNode(from->data);
+			copy(into->left, from->left);
+			copy(into->right, from->right);
 		}
 	};
 }

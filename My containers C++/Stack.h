@@ -19,9 +19,42 @@ namespace spaceStack
 		{
 			this->head = nullptr;
 		}
+		Stack(const Stack &obj)
+		{
+			Stack tmp;
+			Node *p = obj.head;
+			while (p)
+			{
+				tmp.Push(p->data);
+				p = p->next;
+			}
+			while (!tmp.IsEmpty())
+			{
+				this->Push(tmp.Extract());
+				tmp.Pop();
+			}
+		}
 		~Stack()
 		{
 			Clear();
+		}
+
+		Stack& operator=(const Stack &obj)
+		{
+			Clear();
+			Stack tmp;
+			Node *p = obj.head;
+			while (p)
+			{
+				tmp.Push(p->data);
+				p = p->next;
+			}
+			while (!tmp.IsEmpty())
+			{
+				this->Push(tmp.Extract());
+				tmp.Pop();
+			}
+			return *this;
 		}
 
 		void Push(T data)

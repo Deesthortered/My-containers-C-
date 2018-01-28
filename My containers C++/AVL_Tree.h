@@ -21,9 +21,20 @@ namespace spaceAVL_Tree
 			this->clear(this->main_root);
 			this->main_root = nullptr;
 		}
+		AVL_Tree(AVL_Tree &obj)
+		{
+			copy(this->main_root, obj.main_root);
+		}
 		~AVL_Tree()
 		{
 			Clear();
+		}
+
+		AVL_Tree& operator=(AVL_Tree &obj)
+		{
+			Clear();
+			copy(this->main_root, obj.main_root);
+			return *this;
 		}
 
 		bool IsEmpty()
@@ -129,6 +140,14 @@ namespace spaceAVL_Tree
 			clear(root->left);
 			clear(root->right);
 			delete root;
+		}
+		void copy(TreeNode *&into, TreeNode *&from)
+		{
+			if (!from) return;
+			into = new TreeNode(from->data);
+			into->height = from->height;
+			copy(into->left, from->left);
+			copy(into->right, from->right);
 		}
 
 		inline int max(int a, int b) 

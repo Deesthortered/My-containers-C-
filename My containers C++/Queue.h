@@ -20,10 +20,31 @@ namespace spaceQueue
 		{
 			this->head = nullptr;
 			this->tail = nullptr;
+		}		
+		Queue(const Queue &obj)
+		{
+			Node *p = obj.head;
+			while (p)
+			{
+				Push(p->data);
+				p = p->next;
+			}
 		}
 		~Queue()
 		{
 			Clear();
+		}
+
+		Queue& operator=(const Queue &obj)
+		{
+			Clear();
+			Node *p = obj.head;
+			while (p)
+			{
+				Push(p->data);
+				p = p->next;
+			}
+			return *this;
 		}
 
 		void Push(T data)
