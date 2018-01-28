@@ -1,5 +1,4 @@
 #pragma once
-#include "PriorityQueue.h"
 
 namespace spaceAVL_Tree
 {
@@ -28,10 +27,6 @@ namespace spaceAVL_Tree
 			this->main_root = nullptr;
 		}
 
-		bool IsEmpty()
-		{
-			return (this->main_root ? false : true);
-		}
 		bool Insert(T data)
 		{
 			return insert(data, this->main_root);
@@ -39,6 +34,11 @@ namespace spaceAVL_Tree
 		void DeleteNode(T data)
 		{
 			deleteNode(data, this->main_root);
+		}
+
+		bool IsEmpty()
+		{
+			return (this->main_root ? false : true);
 		}
 		T FindVal(T data)
 		{
@@ -61,12 +61,6 @@ namespace spaceAVL_Tree
 			}
 			if (!p) return;
 			p->data = new_val;
-		}
-		spaceArray::Array<T> ReturnAllVals()
-		{
-			spaceArray::Array<T> ar;
-			returnallvals(this->main_root, ar);
-			return ar;
 		}
 
 	private:
@@ -93,10 +87,10 @@ namespace spaceAVL_Tree
 			root->height = 1 + max(Height(root->left), Height(root->right));
 			int balance = Balance(root);
 
-			if (balance >  1 && Balance(root->left) >= 0) { R_rot(root); return k; }
-			if (balance >  1 && Balance(root->left)  <  0) { LR_rot(root); return k; }
-			if (balance < -1 && Balance(root->right) <= 0) { L_rot(root); return k; }
-			if (balance < -1 && Balance(root->right) >  0) { RL_rot(root); return k; }
+			if (balance >  1 && Balance(root->left) >= 0) { R_rotate(root); return k; }
+			if (balance >  1 && Balance(root->left)  <  0) { LR_rotate(root); return k; }
+			if (balance < -1 && Balance(root->right) <= 0) { L_rotate(root); return k; }
+			if (balance < -1 && Balance(root->right) >  0) { RL_rotate(root); return k; }
 			return k;
 		}
 		void deleteNode(T _data, TreeNode *&root)
@@ -130,10 +124,10 @@ namespace spaceAVL_Tree
 			root->height = 1 + max(Height(root->left), Height(root->right));
 			int balance = Balance(root);
 
-			if (balance >  1 && Balance(root->left) >= 0) { R_rot(root); return; }
-			if (balance >  1 && Balance(root->left)  <  0) { LR_rot(root); return; }
-			if (balance < -1 && Balance(root->right) <= 0) { L_rot(root); return; }
-			if (balance < -1 && Balance(root->right) >  0) { RL_rot(root); return; }
+			if (balance >  1 && Balance(root->left) >= 0) { R_rotate(root); return; }
+			if (balance >  1 && Balance(root->left)  <  0) { LR_rotate(root); return; }
+			if (balance < -1 && Balance(root->right) <= 0) { L_rotate(root); return; }
+			if (balance < -1 && Balance(root->right) >  0) { RL_rotate(root); return; }
 		}
 		void clear(TreeNode *root)
 		{
@@ -141,13 +135,6 @@ namespace spaceAVL_Tree
 			clear(root->left);
 			clear(root->right);
 			delete root;
-		}
-		void returnallvals(TreeNode *node, spaceArray::Array<T> &ar)
-		{
-			if (!node) return;
-			ar.Push_back(node->data);
-			returnallvals(node->left, ar);
-			returnallvals(node->right, ar);
 		}
 
 		inline int max(int a, int b) 
@@ -160,7 +147,7 @@ namespace spaceAVL_Tree
 		{
 			return (root ? root->height : 0);
 		}
-		inline void L_rot(TreeNode *&p1)
+		inline void L_rotate(TreeNode *&p1)
 		{
 			TreeNode *p2 = p1->right;
 			p1->right = p2->left;
@@ -170,7 +157,7 @@ namespace spaceAVL_Tree
 			if (p1 == this->main_root) this->main_root = p2;
 			p1 = p2;
 		}
-		inline void R_rot(TreeNode *&p1)
+		inline void R_rotate(TreeNode *&p1)
 		{
 			TreeNode *p2 = p1->left;
 			p1->left = p2->right;
@@ -180,7 +167,7 @@ namespace spaceAVL_Tree
 			if (p1 == this->main_root) this->main_root = p2;
 			p1 = p2;
 		}
-		inline void LR_rot(TreeNode *&p1)
+		inline void LR_rotate(TreeNode *&p1)
 		{
 			TreeNode *p2 = p1->left;
 			TreeNode *p3 = p2->right;
@@ -194,7 +181,7 @@ namespace spaceAVL_Tree
 			if (p1 == this->main_root) this->main_root = p3;
 			p1 = p3;
 		}
-		inline void RL_rot(TreeNode *&p1)
+		inline void RL_rotate(TreeNode *&p1)
 		{
 			TreeNode *p2 = p1->right;
 			TreeNode *p3 = p2->left;
