@@ -56,7 +56,7 @@ namespace spaceSplayTree
 				current = p;
 				if (p->data < data) p = p->right;
 				else if (p->data > data) p = p->left;
-				else return true;
+				else { splay(p); return true; }
 			}
 			if (current->data < data)
 			{
