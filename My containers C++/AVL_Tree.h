@@ -27,12 +27,14 @@ namespace spaceAVL_Tree
 		}
 		~AVL_Tree()
 		{
-			Clear();
+			this->clear(this->main_root);
+			this->main_root = nullptr;
 		}
 
 		AVL_Tree& operator=(AVL_Tree &obj)
 		{
-			Clear();
+			this->clear(this->main_root);
+			this->main_root = nullptr;
 			copy(this->main_root, obj.main_root);
 			return *this;
 		}

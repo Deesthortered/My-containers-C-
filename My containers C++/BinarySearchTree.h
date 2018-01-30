@@ -32,7 +32,7 @@ namespace spaceBinarySearchTree
 
 		BinarySearchTree& operator=(BinarySearchTree &obj)
 		{
-			Clear();
+			clear(this->root);
 			copy(this->root, obj.root);
 			return *this;
 		}
@@ -83,7 +83,7 @@ namespace spaceBinarySearchTree
 				if (node->left != nullptr) return insert(data, node->left);
 				else node->left = new TreeNode(data);
 			}
-			else if (data == node->data) { return true; }
+			else { return true; }
 			return false;
 		}
 		bool deletenode(T data, TreeNode *&node)
