@@ -122,6 +122,7 @@
     <ClInclude Include="AVL_Tree.h" />
     <ClInclude Include="BinarySearchTree.h" />
     <ClInclude Include="BitSet.h" />
+    <ClInclude Include="HashTable.h" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="PriorityQueue.h" />
     <ClInclude Include="Queue.h" />

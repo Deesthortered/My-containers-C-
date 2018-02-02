@@ -75,6 +75,11 @@ namespace spaceArray
 			delete[] this->arr;
 			this->arr = new_arr;
 		}
+		void Resize(size_t s)
+		{
+			if (s > this->real_size) Reserve(s);
+			this->size = s;
+		}
 		void ShrinkToFit()
 		{
 			if (this->size == this->real_size) return;
