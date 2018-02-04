@@ -3,7 +3,7 @@
 
 namespace spaceHashTable
 {
-	// ¬ј∆Ќќ!!!!  ласс расчитан только на Ќ≈” ј«ј“≈Ћ» и на те типы данных, которые не содержат указателей (потому строки отпадают).
+	// ¬ј∆Ќќ!!!!  ласс расчитан только на Ќ≈” ј«ј“≈Ћ» (потому строки отпадают).
 	template<class TKey, class TData>
 	class HashTableChain
 	{
@@ -12,7 +12,7 @@ namespace spaceHashTable
 			TKey key;
 			TData data;
 			HashTableNode *next;
-			HashTableNode(TKey _key, TData _data, HashTableNode *_next) : key(_key), data(_data), next(_next) {}
+			HashTableNode(TKey _key, TData _data) : key(_key), data(_data), next(nullptr) {}
 		};
 
 		spaceArray::Array<HashTableNode*> table;
@@ -28,37 +28,91 @@ namespace spaceHashTable
 			for (register size_t i = 0; i < tableSz; i++)
 				this->table[i] = nullptr; 
 			this->byte_sz = sizeof(TKey);
-			this->primeHash = 1;
-			while ((this->tableSize % this->primeHash == 0) || (this->primeHash % this->tableSize == 0)) this->primeHash++;
+			this->primeHash = rand() % tableSz;
+			while (NOD(this->primeHash, this->tableSize) != 1) this->primeHash++;
 		}
 		~HashTableChain()
 		{
+			for (size_t i = 0; i < this->table.Size(); i++) clear(this->table[i]);
 			this->table.~Array();
 		}
 
 		bool Insert(TKey key, TData data)
 		{
-			cout << key << "\t" << Hash(key) << endl;
-			return false;
+			size_t i = Hash(key);
+			HashTableNode *p = this->table[i];
+			if (!p)
+			{
+				this->table[i] = new HashTableNode(key, data);
+				return false;
+			}
+			while (p->next && p->key != key) p = p->next;
+			if (p->key != key)
+			{
+				p->next = new HashTableNode(key, data);
+				return false;
+			}
+			return true;
 		}
 		bool Delete(TKey key)
 		{
+			size_t i = Hash(key);
+			HashTableNode *p = this->table[i];
+			if (!p) return false;
+			while (p->next && p->next->key != key) p = p->next;
+			if (p->next)
+			{
+				HashTableNode *k = p->next;
+				p->next = p->next->next;
+				delete k;
+				return true;
+			}
+			return false;
+		}
+		bool Exist(TKey key)
+		{
+			size_t i = Hash(key);
+			HashTableNode *p = this->table[i];
+			while (p && p->key != key) p = p->next;
+			if (p) return true;
 			return false;
 		}
 		TData Find(TKey key)
 		{
+			size_t i = Hash(key);
+			HashTableNode *p = this->table[i];
+			while (p && p->key != key) p = p->next;
+			if (p) return p->data;
 			return TData();
 		}
+
 	private:
 		size_t Hash(TKey key)
 		{
 			size_t hash = 0;
 			char *c = (char *)&key;
 			for (register size_t i = 0; i < this->byte_sz; i++)
-			{
 				hash = ((size_t)(hash*this->primeHash + (size_t)(c[i]) )) % this->tableSize;
-			}
 			return hash;
+		}
+		void clear(HashTableNode *&node)
+		{
+			HashTableNode *p = node;
+			while (p)
+			{
+				HashTableNode *k = p;
+				p = p->next;
+				delete k;
+			}
+		}
+		size_t NOD(size_t a, size_t b)
+		{
+			while (a && b)
+			{
+				if (a > b) a %= b;
+				else b %= a;
+			}
+			return a + b;
 		}
 	};
 }
