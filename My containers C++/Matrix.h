@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <iostream>
 
 namespace spaceMatrix
 {
@@ -30,7 +31,7 @@ namespace spaceMatrix
 					this->arr[i][j] = obj.arr[i][j];
 			}
 		}
-		Matrix(size_t h, size_t w, T value)
+		Matrix(size_t h, size_t w, T value = T())
 		{
 			this->height = h;
 			this->width = w;
@@ -87,8 +88,23 @@ namespace spaceMatrix
 			if (i >= height || j >= width) throw "Out of range";
 			return this->arr[i][j];
 		}
+		Matrix Transpose()
+		{
+			Matrix res(this->width, this->height, T());
+			for (register size_t i = 0; i < this->height; i++)
+				for (register size_t j = 0; j < this->width; j++)
+					res.arr[j][i] = this->arr[i][j];
+			return res;
+		}
+		static Matrix UseFuncToElems(Matrix m, T(*func)(T))
+		{
+			for (register size_t i = 0; i < m.height; i++)
+				for (register size_t j = 0; j < m.width; j++)
+					m.arr[i][j] = (*func)(m.arr[i][j]);
+			return m;
+		}
 
-		Matrix& operator=(const Matrix &obj)
+		Matrix& operator=(const Matrix obj)
 		{
 			deleteMatrix();
 			this->height = obj.height;
@@ -111,6 +127,7 @@ namespace spaceMatrix
 					if (a.arr[i][j] != b.arr[i][j]) return false;
 			return true;
 		}
+
 		friend const Matrix operator+(const Matrix& a, const Matrix& b)
 		{
 			if (a.height != b.height || a.width != b.width) throw "Matrices are not compatible";
@@ -123,6 +140,31 @@ namespace spaceMatrix
 				return res;
 			}
 		}
+		friend const Matrix operator+(const Matrix& a, const T& b)
+		{
+			if (!a.height || !a.width) throw "Matrix is empty";
+			else
+			{
+				Matrix res(a.height, a.width, T());
+				for (register size_t i = 0; i < a.height; i++)
+					for (register size_t j = 0; j < a.width; j++)
+						res.arr[i][j] = a.arr[i][j] + b;
+				return res;
+			}
+		}
+		friend const Matrix operator+(const T& b, const Matrix& a)
+		{
+			if (!a.height || !a.width) throw "Matrix is empty";
+			else
+			{
+				Matrix res(a.height, a.width, T());
+				for (register size_t i = 0; i < a.height; i++)
+					for (register size_t j = 0; j < a.width; j++)
+						res.arr[i][j] = a.arr[i][j] + b;
+				return res;
+			}
+		}
+
 		friend const Matrix operator-(const Matrix& a, const Matrix& b)
 		{
 			if (a.height != b.height || a.width != b.width) throw "Matrices are not compatible";
@@ -135,6 +177,31 @@ namespace spaceMatrix
 				return res;
 			}
 		}
+		friend const Matrix operator-(const Matrix& a, const T& b)
+		{
+			if (!a.height || !a.width) throw "Matrix is empty";
+			else
+			{
+				Matrix res(a.height, a.width, T());
+				for (register size_t i = 0; i < a.height; i++)
+					for (register size_t j = 0; j < a.width; j++)
+						res.arr[i][j] = a.arr[i][j] - b;
+				return res;
+			}
+		}
+		friend const Matrix operator-(const T& b, const Matrix& a)
+		{
+			if (!a.height || !a.width) throw "Matrix is empty";
+			else
+			{
+				Matrix res(a.height, a.width, T());
+				for (register size_t i = 0; i < a.height; i++)
+					for (register size_t j = 0; j < a.width; j++)
+						res.arr[i][j] = b - a.arr[i][j];
+				return res;
+			}
+		}
+
 		friend const Matrix operator*(const Matrix& a, const Matrix& b)
 		{
 			if (a.width != b.height) throw "Matrices are not compatible";
@@ -148,7 +215,56 @@ namespace spaceMatrix
 				return res;
 			}
 		}
-		Matrix& operator+=(const Matrix& a)
+		friend const Matrix operator*(const Matrix& a, const T& b)
+		{
+			if (!a.height || !a.width) throw "Matrix is empty";
+			else
+			{
+				Matrix res(a.height, a.width, T());
+				for (register size_t i = 0; i < a.height; i++)
+					for (register size_t j = 0; j < a.width; j++)
+						res.arr[i][j] = a.arr[i][j] * b;
+				return res;
+			}
+		}
+		friend const Matrix operator*(const T& b, const Matrix& a)
+		{
+			if (!a.height || !a.width) throw "Matrix is empty";
+			else
+			{
+				Matrix res(a.height, a.width, T());
+				for (register size_t i = 0; i < a.height; i++)
+					for (register size_t j = 0; j < a.width; j++)
+						res.arr[i][j] = a.arr[i][j] * b;
+				return res;
+			}
+		}
+
+		friend const Matrix operator&(const Matrix& a, const Matrix& b)
+		{
+			if (a.height != b.height || a.width != b.width) throw "Matrices are not compatible";
+			else
+			{
+				Matrix res(a.height, a.width, T());
+				for (register size_t i = 0; i < a.height; i++)
+					for (register size_t j = 0; j < a.width; j++)
+						res.arr[i][j] = a.arr[i][j] * b.arr[i][j];
+				return res;
+			}
+		}
+		Matrix& operator&=(const Matrix a)
+		{
+			if (a.height != this->height || a.width != this->width) throw "Matrices are not compatible";
+			else
+			{
+				for (register size_t i = 0; i < this->height; i++)
+					for (register size_t j = 0; j < this->width; j++)
+						this->arr[i][j] *= a.arr[i][j];
+			}
+			return *this;
+		}
+
+		Matrix& operator+=(const Matrix a)
 		{
 			if (a.height != this->height || a.width != this->width) throw "Matrices are not compatible";
 			else
@@ -159,7 +275,19 @@ namespace spaceMatrix
 			}
 			return *this;
 		}
-		Matrix& operator-=(const Matrix& a)
+		Matrix& operator+=(const T& a)
+		{
+			if (!this->height || !this->width) throw "Matrix is empty";
+			else
+			{
+				for (register size_t i = 0; i < this->height; i++)
+					for (register size_t j = 0; j < this->width; j++)
+						this->arr[i][j] += a;
+			}
+			return *this;
+		}
+
+		Matrix& operator-=(const Matrix a)
 		{
 			if (a.height != this->height || a.width != this->width) throw "Matrices are not compatible";
 			else
@@ -170,7 +298,19 @@ namespace spaceMatrix
 			}
 			return *this;
 		}
-		Matrix& operator*=(const Matrix& a)
+		Matrix& operator-=(const T& a)
+		{
+			if (!this->height || !this->width) throw "Matrix is empty";
+			else
+			{
+				for (register size_t i = 0; i < this->height; i++)
+					for (register size_t j = 0; j < this->width; j++)
+						this->arr[i][j] -= a;
+			}
+			return *this;
+		}
+
+		Matrix& operator*=(const Matrix a)
 		{
 			if (this->width != a.height) throw "Matrices are not compatible";
 			else
@@ -184,14 +324,16 @@ namespace spaceMatrix
 			}
 			return *this;
 		}
-
-		Matrix Transpose()
+		Matrix& operator*=(const T& a)
 		{
-			Matrix res(this->width, this->height, T());
-			for (register size_t i = 0; i < this->height; i++)
-				for (register size_t j = 0; j < this->width; j++)
-					res.arr[j][i] = this->arr[i][j];
-			return res;
+			if (!this->height || !this->width) throw "Matrix is empty";
+			else
+			{
+				for (register size_t i = 0; i < this->height; i++)
+					for (register size_t j = 0; j < this->width; j++)
+						this->arr[i][j] *= a;
+			}
+			return *this;
 		}
 
 		void Show()
@@ -203,6 +345,7 @@ namespace spaceMatrix
 					cout << this->arr[i][j] << " ";
 				cout << endl;
 			}
+			cout << endl << endl;
 		}
 	private:
 		void deleteMatrix()
@@ -211,6 +354,8 @@ namespace spaceMatrix
 			for (register size_t i = 0; i < height; i++)
 				delete[] this->arr[i];
 			delete[] this->arr;
+			this->height = 0;
+			this->width = 0;
 		}
 	};
 }
