@@ -54,6 +54,7 @@ namespace spaceRed_Black_Tree
 
 		Red_Black_Tree& operator=(const Red_Black_Tree &obj)
 		{
+			if (&obj == this) return *this;
 			clear(this->main_root);
 			if (obj.main_root == obj.nil)
 				this->main_root = this->nil;

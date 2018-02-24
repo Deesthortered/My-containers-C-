@@ -37,6 +37,7 @@ namespace spaceQueue
 
 		Queue& operator=(const Queue &obj)
 		{
+			if (&obj == this) return *this;
 			Clear();
 			Node *p = obj.head;
 			while (p)

@@ -28,6 +28,7 @@ namespace spacePriorityQueue
 
 		PriorityQueueMin& operator=(const PriorityQueueMin &obj)
 		{
+			if (&obj == this) return *this;
 			this->arr = obj.arr;
 			return *this;
 		}
@@ -122,6 +123,7 @@ namespace spacePriorityQueue
 
 		PriorityQueueMax& operator=(const PriorityQueueMax &obj)
 		{
+			if (&obj == this) return *this;
 			this->arr = obj.arr;
 			return *this;
 		}

@@ -33,6 +33,7 @@ namespace spaceSplayTree
 
 		SplayTree& operator=(SplayTree &obj)
 		{
+			if (&obj == this) return *this;
 			clear(this->root);
 			copy(this->root, obj.root);
 			return *this;

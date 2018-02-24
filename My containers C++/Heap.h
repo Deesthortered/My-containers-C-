@@ -20,6 +20,7 @@ namespace spaceHeap
 
 		HeapMin& operator=(const HeapMin &obj)
 		{
+			if (&obj == this) return *this;
 			this->arr = obj.arr;
 			return *this;
 		}
@@ -107,6 +108,7 @@ namespace spaceHeap
 
 		HeapMax& operator=(const HeapMax &obj)
 		{
+			if (&obj == this) return *this;
 			this->arr = obj.arr;
 			return *this;
 		}

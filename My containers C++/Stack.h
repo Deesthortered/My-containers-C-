@@ -21,6 +21,7 @@ namespace spaceStack
 		}
 		Stack(const Stack &obj)
 		{
+			if (&obj == this) return *this;
 			Stack tmp;
 			Node *p = obj.head;
 			while (p)

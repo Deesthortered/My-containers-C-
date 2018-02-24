@@ -32,6 +32,7 @@ namespace spaceBinarySearchTree
 
 		BinarySearchTree& operator=(BinarySearchTree &obj)
 		{
+			if (&obj == this) return *this;
 			clear(this->root);
 			copy(this->root, obj.root);
 			return *this;

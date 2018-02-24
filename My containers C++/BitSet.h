@@ -42,6 +42,7 @@ namespace spaceBitSet
 
 		BitSet& operator=(const BitSet &obj)
 		{
+			if (&obj == this) return *this;
 			if (this->byte_size) delete[] this->arr;
 			this->bit_size = obj.bit_size;
 			this->byte_size = obj.byte_size;

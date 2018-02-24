@@ -104,8 +104,9 @@ namespace spaceMatrix
 			return m;
 		}
 
-		Matrix& operator=(const Matrix obj)
+		Matrix& operator=(const Matrix &obj)
 		{
+			if (&obj == this) return *this;
 			deleteMatrix();
 			this->height = obj.height;
 			this->width = obj.width;

@@ -33,6 +33,7 @@ namespace spaceAVL_Tree
 
 		AVL_Tree& operator=(AVL_Tree &obj)
 		{
+			if (&obj == this) return *this;
 			this->clear(this->main_root);
 			this->main_root = nullptr;
 			copy(this->main_root, obj.main_root);
