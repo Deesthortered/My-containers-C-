@@ -95,9 +95,20 @@ namespace spaceArray
 			delete[] this->arr;
 			this->arr = new_arr;
 		}
+		void Remove(size_t from, size_t cnt)
+		{
+			T* new_arr = new T[this->real_size];
+			for (register size_t i = 0; i < this->size; i++)
+				if (i < from) new_arr[i] = this->arr[i];
+				else new_arr[i] = this->arr[i + cnt];
+			delete[] this->arr;
+			this->arr = new_arr;
+			this->size -= cnt;
+		}
 
 		Array& operator=(const Array &obj)
 		{
+			if (&obj == this) return *this;
 			if (!obj.real_size) { this->~Array(); return *this; }
 			if (this->real_size) delete[] this->arr;
 			this->size = obj.size;
