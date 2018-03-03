@@ -119,7 +119,7 @@ namespace spaceIdealHashTable
 		{
 			return (((key * a) + b) % p) % m;
 		}
-		void clear()
+		inline void clear()
 		{
 			for (register size_t i = 0; i < table.size(); i++)
 				for (register size_t j = 0; j < table[i].size(); j++)
