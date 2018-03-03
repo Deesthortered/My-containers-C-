@@ -125,6 +125,7 @@
     <ClInclude Include="Graph.h" />
     <ClInclude Include="HashTable.h" />
     <ClInclude Include="Heap.h" />
+    <ClInclude Include="IdealHashTable.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="PriorityQueue.h" />
     <ClInclude Include="Queue.h" />
