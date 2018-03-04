@@ -1,19 +1,19 @@
 #include "vld.h"
 #include <iostream>
-#include <cstdlib>
 #include "BinominalHeap.h"
 using namespace std;
 
 int main()
 {
 	spaceBinominalHeap::BinominalHeap<int> heap;
-	for (size_t i = 0; i < 50; i++)
-	{
-		heap.Insert(i);
-		heap.Insert(100 - i);
-	}
-
 	for (size_t i = 0; i < 10; i++)
+		heap.Insert(i);
+
+	heap.DecreaseKey(6, -10);
+	heap.Delete(5);
+
+
+	while (!heap.IsEmpty()) 
 		cout << heap.ExtractMin() << endl;
 
 	system("pause");

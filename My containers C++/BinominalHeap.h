@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 
 namespace spaceBinominalHeap
 {
@@ -13,9 +12,7 @@ namespace spaceBinominalHeap
 			HeapNode *child;
 			HeapNode *sibling;
 			size_t degree;
-			HeapNode() : key(T()), parent(nullptr), child(nullptr), sibling(nullptr), degree(0) {}
 			HeapNode(T _key) : key(_key), parent(nullptr), child(nullptr), sibling(nullptr), degree(0) {}
-			HeapNode(T _key, HeapNode* _parent, HeapNode* _child, HeapNode* _sibling, size_t _degree) : key(_key), parent(_parent), child(_child), sibling(_sibling), degree(_degree) {}
 		};
 		HeapNode *root;
 		HeapNode *min_elem;
@@ -33,14 +30,18 @@ namespace spaceBinominalHeap
 			this->min_elem = nullptr;
 		}
 
+		bool IsEmpty()
+		{
+			return (this->root ? false : true);
+		}
 		void Insert(T key)
 		{
 			HeapNode *temp = new HeapNode(key);
 			this->root = merge(this->root, temp);
-			getMinimum();
 		}
 		T ExtractMin()
 		{
+			getMinimum();
 			if (!this->min_elem) return T();
 			T res = this->min_elem->key;
 
@@ -50,8 +51,6 @@ namespace spaceBinominalHeap
 				this->root = this->root->sibling;
 				p = p->child;
 				delete this->min_elem;
-				HeapNode *tmp = p;
-				while (tmp) { tmp->parent = nullptr; tmp = tmp->sibling; }
 			}
 			else
 			{
@@ -59,34 +58,38 @@ namespace spaceBinominalHeap
 				p->sibling = p->sibling->sibling;
 				p = this->min_elem->child;
 				delete this->min_elem;
-				HeapNode *tmp = p;
-				while (tmp) { tmp->parent = nullptr; tmp = tmp->sibling; }
 			}
+			HeapNode *tmp = p;
+			while (tmp) { tmp->parent = nullptr; tmp = tmp->sibling; }
+
 			inverseList(p, nullptr, p);
 			this->root = merge(this->root, p);
-			getMinimum();
 			return res;
 		}
-		void DecreaseKey()
+		void DecreaseKey(T key, T new_val)
 		{
-
-			getMinimum();
+			if (key <= new_val) return;
+			HeapNode* x = nullptr;
+			search(key, this->root, x);
+			if (!x) return;
+			x->key = new_val;
+			HeapNode* p = x->parent;
+			while (p && x->key < p->key)
+			{
+				swap(x->key, p->key);
+				x = p; p = p->parent;
+			}
 		}
-		void Delete()
+		void Delete(T key)
 		{
-
 			getMinimum();
+			DecreaseKey(key, this->min_elem->key - 1);
+			getMinimum();
+			ExtractMin();
 		}
 
 	private:
-		void inverseList(HeapNode *&head, HeapNode *prev, HeapNode *cur)
-		{
-			if (!cur) return;
-			if (cur->sibling) inverseList(head, cur, cur->sibling);
-			else head = cur;
-			cur->sibling = prev;
-		}
-		void getMinimum()
+		inline void getMinimum()
 		{
 			if (!this->root) this->min_elem = nullptr;
 			this->min_elem = this->root;
@@ -97,7 +100,24 @@ namespace spaceBinominalHeap
 				p = p->sibling;
 			}
 		}
-		HeapNode* merge(HeapNode *H1, HeapNode *H2)
+		static void search(T &val, HeapNode* node, HeapNode *&res)
+		{
+			if (!node) return;
+			if (val == node->key) res = node;
+			else
+			{
+				search(val, node->sibling, res);
+				search(val, node->child, res);
+			}
+		}
+		static void inverseList(HeapNode *&head, HeapNode *prev, HeapNode *cur)
+		{
+			if (!cur) return;
+			if (cur->sibling) inverseList(head, cur, cur->sibling);
+			else head = cur;
+			cur->sibling = prev;
+		}
+		static HeapNode* merge(HeapNode *H1, HeapNode *H2)
 		{
 			if (!H1) return H2;
 			if (!H2) return H1;
