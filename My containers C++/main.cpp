@@ -1,20 +1,17 @@
 #include "vld.h"
 #include <iostream>
-#include "BinominalHeap.h"
+#include "FibonacciHeap.h"
 using namespace std;
 
 int main()
 {
-	spaceBinominalHeap::BinominalHeap<int> heap;
-	for (size_t i = 0; i < 10; i++)
-		heap.Insert(i);
+	spaceFibonacciHeap::FibonacciHeap<int> heap;
 
-	heap.DecreaseKey(6, -10);
-	heap.Delete(5);
-
-
-	while (!heap.IsEmpty()) 
-		cout << heap.ExtractMin() << endl;
+	heap.Insert(5);
+	heap.Insert(7);
+	heap.Insert(3);
+	heap.Insert(8);
+	heap.Insert(9);
 
 	system("pause");
 	return 0;
