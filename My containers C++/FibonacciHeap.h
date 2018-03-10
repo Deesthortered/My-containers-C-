@@ -111,7 +111,8 @@ namespace spaceFibonacciHeap
 		{
 			if (!node || res) return;
 			HeapNode *p = node->right;
-			while (p != node)
+			bool ready = false;
+			while (true)
 			{
 				if (p->key == key)
 				{
@@ -120,15 +121,9 @@ namespace spaceFibonacciHeap
 				}
 				if (p->key < key) search(p->child, key, res);
 				p = p->right;
+				if (p == node) ready = true;
+				else if (ready) break;
 			}
-
-			if (p->key == key)
-			{
-				res = p;
-				return;
-			}
-			if (p->key < key) search(p->child, key, res);
-			p = p->right;
 		}
 		static void clear(HeapNode *node)
 		{
