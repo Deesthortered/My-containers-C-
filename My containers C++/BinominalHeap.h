@@ -69,15 +69,16 @@ namespace spaceBinominalHeap
 		void DecreaseKey(T key, T new_val)
 		{
 			if (key <= new_val) return;
-			HeapNode* x = nullptr;
+			HeapNode *x = nullptr;
 			search(key, this->root, x);
 			if (!x) return;
 			x->key = new_val;
-			HeapNode* p = x->parent;
+			HeapNode *p = x->parent;
 			while (p && x->key < p->key)
 			{
 				swap(x->key, p->key);
-				x = p; p = p->parent;
+				x = p;
+				p = p->parent;
 			}
 		}
 		void Delete(T key)
@@ -100,14 +101,14 @@ namespace spaceBinominalHeap
 				p = p->sibling;
 			}
 		}
-		static void search(T &val, HeapNode* node, HeapNode *&res)
+		static void search(T &val, HeapNode *node, HeapNode *&res)
 		{
 			if (!node) return;
 			if (val == node->key) res = node;
 			else
 			{
 				search(val, node->sibling, res);
-				search(val, node->child, res);
+				if (val > node->key) search(val, node->child, res);
 			}
 		}
 		static void inverseList(HeapNode *&head, HeapNode *prev, HeapNode *cur)
@@ -121,10 +122,7 @@ namespace spaceBinominalHeap
 		{
 			if (!H1) return H2;
 			if (!H2) return H1;
-			HeapNode *res = nullptr;
-			HeapNode *curH = nullptr;
-			HeapNode *curH1 = H1;
-			HeapNode *curH2 = H2;
+			HeapNode *res = nullptr, *curH = nullptr, *curH1 = H1, *curH2 = H2;
 
 			if (curH1->degree <= curH2->degree) curH = curH1, curH1 = curH1->sibling;
 			else curH = curH2, curH2 = curH2->sibling;
