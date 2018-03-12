@@ -51,43 +51,39 @@ namespace spaceFibonacciHeap
 			if (p->key < this->min_element->key) this->min_element = p;
 			this->size++;
 		}
-		T ExtractMin() 
+		T ExtractMin()
 		{
 			if (!this->min_element) return T();
-			HeapNode *res = this->min_element;
-			if (this->min_element->child) 
+			HeapNode *prevMin = this->min_element;
+			unionLists(this->min_element, this->min_element->child);
+
+			//HeapNode *p = this->min_element;
+			//do { p->parent = nullptr; p = p->right; } while (p != this->min_element);
+
+			this->min_element->left->right = this->min_element->right;
+			this->min_element->right->left = this->min_element->left;
+
+			T res = prevMin->key;
+			if (prevMin->right == prevMin)
 			{
-				HeapNode *current = this->min_element->child;
-				do
-				{
-					HeapNode *R = current->right;
-					current->parent = nullptr;
-					current->left = current->right = current;
-					unionLists(this->min_element, current);
-					current = R;
-				} while (current != this->min_element->child);
-				this->min_element->child = nullptr;
-			}
-			HeapNode *L = this->min_element->left, *R = this->min_element->right;
-			L->right = R;
-			R->left = L;
-			this->size--;
-			if (res->right == res) 
-			{
+				delete prevMin;
 				this->min_element = nullptr;
-				return res->key;
+				this->size--;
+				return res;
 			}
+
 			this->min_element = this->min_element->right;
+			delete prevMin;
+			this->size--;
 			consolidate();
-			return res->key;
+			return res;
 		}
-		void DecreaseKey(T key, T new_val)
+		bool DecreaseKey(T key, T new_val)
 		{
-			if (key < new_val) return;
+			if (key < new_val) return false;
 			HeapNode *p = nullptr;
 			search(this->min_element, key, p);
-			if (!p) return;
-
+			if (!p) return false;
 			p->key = new_val;
 			HeapNode *parent = p->parent;
 			if (parent && p->key < parent->key) 
@@ -96,17 +92,46 @@ namespace spaceFibonacciHeap
 				cascadingCut(parent);
 			}
 			if (p->key < this->min_element->key) this->min_element = p;
+			return true;
 		}
 		void Delete(T key)
 		{
-			HeapNode *p = nullptr;
-			search(this->min_element, key, p);
-			if (!p || p->key < new_val) return;
-			DecreaseKey(key, this->min_element->key - 1);
-			ExtractMin();
+			if (DecreaseKey(key, this->min_element->key - 1)) ExtractMin();
+		}
+		void Merge(FibonacciHeap &that)
+		{
+			if (!that.size) return;
+			if (!this->size)
+			{
+				this->min_element = that.min_element;
+				this->size = that.size;
+			}
+			else
+			{
+				unionLists(this->min_element, that.min_element);
+				this->size += that.size;
+				if (that.min_element->key < this->min_element->key)
+					this->min_element = that.min_element;
+			}
+			that.min_element = nullptr;
+			that.size = 0;
 		}
 
 	private:
+		static void clear(HeapNode *node)
+		{
+			if (!node) return;
+			HeapNode *p = node->right;
+			while (p != node)
+			{
+				clear(p->child);
+				HeapNode *k = p;
+				p = p->right;
+				delete k;
+			}
+			clear(node->child);
+			delete node;
+		}
 		static void search(HeapNode *node, T &key, HeapNode *&res)
 		{
 			if (!node || res) return;
@@ -125,51 +150,57 @@ namespace spaceFibonacciHeap
 				else if (ready) break;
 			}
 		}
-		static void clear(HeapNode *node)
+		static void linkHeap(HeapNode *first, HeapNode *second)
 		{
-			if (!node) return;
-			HeapNode *p = node->right;
-			while (p != node)
-			{
-				clear(p->child);
-				HeapNode *k = p;
-				p = p->right;
-				delete k;
-			}
-			clear(node->child);
-			delete node;
+			if (!second || !first) return;
+			if (!first->child) first->child = second;
+			else unionLists(second, first->child);
+			second->parent = first;
+			first->degree++;
+			second->mark = false;
 		}
-
-		void consolidate() 
+		static void unionLists(HeapNode *first, HeapNode *second)
 		{
+			if (!first || !second) return;
+			first->left->right = second->right;
+			second->right->left = first->left;
+			second->right = first;
+			first->left = second;
+		}
+		void consolidate()
+		{
+			if (this->size == 1) return;
 			HeapNode **cons_arr = new HeapNode*[this->size];
 			for (size_t i = 0; i < this->size; i++) cons_arr[i] = nullptr;
-			HeapNode *current = this->min_element->right;
+
+			HeapNode *current = this->min_element, *next = this->min_element->right;
+			this->min_element = nullptr;
 			bool ready = false;
+
 			while (true)
 			{
-				HeapNode *X = current, *R = current->right, *L = current->left;
-				size_t cur_degree = X->degree;
-				R->left = L;
-				L->right = R;
-				X->left = X->right = X;
-				while (cons_arr[cur_degree]) 
+				size_t cur_degree = current->degree;
+				current->right->left = current->left;
+				current->left->right = current->right;
+				current->left = current->right = current;
+				while (cons_arr[cur_degree])
 				{
 					HeapNode *tmp = cons_arr[cur_degree];
-					if (X->key > tmp->key) swap(X, tmp);
-					linkHeap(X, tmp);
+					if (current->key > tmp->key) { linkHeap(tmp, current); current = tmp; }
+					else linkHeap(current, tmp);
 					cons_arr[cur_degree] = nullptr;
 					cur_degree++;
 				}
-				cons_arr[cur_degree] = X;
-				current = R;
-				if (current == this->min_element) ready = true;
-				else if (ready) break;
+				cons_arr[cur_degree] = current;
+
+				if (ready) break;
+				if (next == next->right) ready = true;
+				current = next;
+				next = next->right;
 			}
-			this->min_element = nullptr;
 			for (size_t i = 0; i < this->size; i++)
 			{
-				if (cons_arr[i]) 
+				if (cons_arr[i])
 				{
 					if (this->min_element)
 					{
@@ -181,23 +212,21 @@ namespace spaceFibonacciHeap
 			}
 			delete[] cons_arr;
 		}
-		void merge(FibonacciHeap *that)
+		void cut(HeapNode *first, HeapNode *second)
 		{
-			if (!that->size) return;
-			if (!this->size)
+			first->left->right = first->right;
+			first->right->left = first->left;
+			second->degree--;
+			if (second->child == first)
 			{
-				this->min_element = that->min_element;
-				this->size = that->size;
+				if (first->right == first) second->child = nullptr;
+				else second->child = first->right;
 			}
-			else
-			{
-				unionLists(this->min_element, that->min_element);
-				this->size += that->size;
-				if (that->min_element->key < this->min_element->key) 
-					this->min_element = that->min_element;
-			}
+			first->parent = nullptr;
+			first->left = first->right = first;
+			unionLists(this->min_element, first);
 		}
-		static void cascadingCut(HeapNode *node)
+		void cascadingCut(HeapNode *node)
 		{
 			HeapNode *current = node->parent;
 			if (current) 
@@ -209,42 +238,6 @@ namespace spaceFibonacciHeap
 					cascadingCut(current);
 				}
 			}
-		}
-		static void cut(HeapNode *X, HeapNode *Y)
-		{
-			HeapNode *L = X->left, *R = X->right;
-			L->right = R;
-			R->left = L;
-			Y->degree--;
-			if (Y->child == X)
-			{
-				if (X->right == X) Y->child = nullptr;
-				else Y->child = X->right;
-			}
-			X->parent = nullptr;
-			X->left = X->right = X;
-			unionLists(this->min_element, X);
-		}
-		static void linkHeap(HeapNode *first, HeapNode *second)
-		{
-			if (!second || !first) return;
-			HeapNode *L = second->left, *R = second->right;
-			L->right = R;
-			R->left = L;
-			second->left = second->right = second;
-			if (!first->child) first->child = second;
-			else unionLists(first->child, second);
-			second->parent = first;
-			first->degree++;
-			second->mark = false;
-		}
-		static void unionLists(HeapNode *first, HeapNode *second)
-		{
-			HeapNode *l = first->left, *r = second->right;
-			second->right = first;
-			first->left = second;
-			l->right = r;
-			r->left = l;
 		}
 	};
 }

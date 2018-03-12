@@ -123,6 +123,7 @@
     <ClInclude Include="BinarySearchTree.h" />
     <ClInclude Include="BinominalHeap.h" />
     <ClInclude Include="BitSet.h" />
+    <ClInclude Include="Bplus_Tree.h" />
     <ClInclude Include="FibonacciHeap.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="HashTable.h" />
